@@ -1,0 +1,41 @@
+# playbook
+---
+- name: change grub 
+  hosts: one
+  user: ansible
+  become: yes
+  become_method: sudo
+  become_user: root
+ 
+  tasks:
+  - name: check ifnames
+    shell: grep -c "net.ifnames=0" /etc/default/grub || true
+    register: check_ifnames
+
+  - name: insert ifnames
+    lineinfile:
+      dest: /etc/default/grub
+      state: present
+      backrefs: yes
+      regexp: '^(GRUB_CMDLINE_LINUX=\"[^\"]+)(\".*)'
+      line: '\1 net.ifnames=0\2'
+    when: check_ifnames.stdout == "0"
+
+  - name: check devname
+    shell: grep -c "biosdevname=0" /etc/default/grub || true
+    register: check_devname
+
+  - name: insert biosdevname
+    lineinfile:
+      dest: /etc/default/grub
+      state: present
+      backrefs: yes
+      regexp: '^(GRUB_CMDLINE_LINUX=\"[^\"]+)(\".*)'
+      line: '\1 biosdevname=0\2'
+    when: check_devname.stdout == "0"
+
+  - name: updating grub
+    command: grub2-mkconfig
+    when: check_ifnames.stdout == "0" or check_devname.stdout == "0"
+
+...

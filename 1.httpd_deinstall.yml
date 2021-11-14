@@ -1,0 +1,33 @@
+---
+- name: httpd deinstall
+  hosts: all
+  user: ansible
+  become: yes
+  become_method: sudo
+  become_user: root
+
+  tasks:
+  - name: stop httpd.
+    service:
+      name: httpd
+      state: stopped
+      enabled: no
+      
+  - name: deinstall httpd
+    yum:
+      name: httpd
+      state: absent
+      autoremove: yes
+
+  - name: remove index page
+    file:
+      state: absent
+      path: /var/www/html/index.html
+
+  - name: fix hole in the wall
+    firewalld:
+      port: 80/tcp
+      permanent: yes
+      state: disabled
+
+...

@@ -1,0 +1,45 @@
+---
+- name: httpd install
+  hosts: all
+  user: ansible
+  become: yes
+  become_method: sudo
+  become_user: root
+
+  tasks:
+  - name: install httpd
+    yum:
+      name: httpd
+      state: latest
+
+  - name: start httpd 
+    service:
+      name: httpd
+      state: started
+      enabled: yes
+
+  - name: check it works
+    shell: systemctl status httpd
+
+  - name: write index page
+    copy:
+      dest: /var/www/html/index.html
+      content: |
+         <!DOCTYPE html>
+         <html lang="en">
+          <head>
+           <meta charset="utf-8">
+          </head>
+           <body>
+             <h1 align="center">Welcome</h1>
+              <p align="center">to my webserver</p>
+           </body>
+         </html>
+
+  - name: open wall
+    firewalld:
+      port: 80/tcp
+      permanent: yes
+      state: enabled
+
+...
