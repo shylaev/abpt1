@@ -1,7 +1,7 @@
 # playbook
 ---
 - name: change grub 
-  hosts: one
+  hosts: all
   user: ansible
   become: yes
   become_method: sudo
